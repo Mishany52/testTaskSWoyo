@@ -71,15 +71,3 @@ func (r *repository) FindOneShortByLong(ctx context.Context, longUrl string) (sh
 	return shortUrl, err
 }
 
-// func (ud *UrlDb) InitializeDB(){
-// 	ud.createConnection()
-// 	defer ud.conn.Close()
-// 	query := `
-// 	`
-
-// 	_, err := ud.conn.Exec(query)
-// 	if err != nil {
-// 		log.Fatalf("Error creating table: %v", err)
-// 	}
-// 	log.Println("Table checked/created successfully!")
-// }

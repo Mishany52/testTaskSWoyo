@@ -3,7 +3,6 @@ package url
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"regexp"
@@ -34,8 +33,7 @@ func (h *handler) Register(router *chi.Mux){
 }
 
 func (h *handler) Create(w http.ResponseWriter, r *http.Request){
-	//Регулярное выражение для проверки на валидность url
-	re := regexp.MustCompile("((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)")
+	
 	var shortUrl string;
 	
 	var dto CreateShortUrl
@@ -47,20 +45,19 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request){
 
 	//Валидация
 	bodyStr := string(dto.LongUrl)
-	matchLongUrl := re.FindString(bodyStr)
-	if(matchLongUrl == ""){
+	validUrl := h.validateUrl(bodyStr)
+	if(validUrl == ""){
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
 	}
-
 	//Проверяем есть ли уже короткая ссылка в хранилище
-	shortUrl, _ = h.repository.FindOneShortByLong(context.TODO(), matchLongUrl)
-	fmt.Println(shortUrl)
+	shortUrl, _ = h.repository.FindOneShortByLong(context.TODO(), validUrl)
 	if shortUrl == ""{
 		//Генерируем короткий url
 		shortUrl = conf.FullServerAddr + utils.RandomString(7)
 
 		//Добавляем в базу или map в зависимости от запуска
-		err = h.repository.Create(context.TODO(), matchLongUrl, shortUrl)
+		err = h.repository.Create(context.TODO(), validUrl, shortUrl)
 
 		if err != nil {
 			log.Println(err)
@@ -82,4 +79,11 @@ func (h *handler) GetByShortPath(w http.ResponseWriter, r *http.Request){
 	}
 	w.Write([]byte(longUrl))
 	w.WriteHeader(200)
+}
+
+func (h* handler) validateUrl(url string) (validUrl string) {
+	//Регулярное выражение для проверки на валидность url
+	re := regexp.MustCompile("((((https?|ftps?|gopher|telnet|nntp)://)|(mailto:|news:))([-%()_.!~*';/?:@&=+$,A-Za-z0-9])+)")
+	validUrl = re.FindString(url)
+	return validUrl
 }

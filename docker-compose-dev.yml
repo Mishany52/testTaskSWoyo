@@ -1,0 +1,30 @@
+services:
+  postgres:
+    container_name: microservices_db
+    image: 'postgres:13-alpine'
+    environment:
+      - POSTGRES_PASSWORD
+    ports:
+      - 5433:5432
+    volumes:
+      - ./init/database.sql:/docker-entrypoint-initdb.d/database.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 10s
+      retries: 5
+  backend:
+    container_name: microservices_backend
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    ports:
+      - 8080:8080
+    stdin_open: true
+    command: ['/backend', '-d']
+    depends_on:
+      postgres:
+        condition: service_healthy
+networks:
+  default:
+    name: microservices_network

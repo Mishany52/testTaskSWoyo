@@ -26,12 +26,11 @@ func main(){
 
 	cfg := config.GetConfig()
 
-	
-	client, err := postgresql.NewClient(context.TODO(),cfg.PostgresURL)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
 	if isPostgres {
+		client, err := postgresql.NewClient(context.TODO(),cfg.PostgresURL)
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
 		repository = url.NewRepository(client)
 		
 	} else {
