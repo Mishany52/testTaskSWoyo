@@ -21,7 +21,7 @@ services:
     ports:
       - 8080:8080
     stdin_open: true
-    command: ['/backend', '-d']
+    command: ${BACKEND_CMD:-/backend}
     depends_on:
       postgres:
         condition: service_healthy

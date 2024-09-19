@@ -3,7 +3,6 @@ package url
 import (
 	"context"
 	"errors"
-	"fmt"
 )
 
 type Url struct{ 
@@ -38,7 +37,6 @@ func (p *Url) FindOneLongByShort(ctx context.Context, shortPath string) (longUrl
 }
 
 func (p *Url) FindOneShortByLong(ctx context.Context, longPath string) ( shortUrl string, err error){
-	fmt.Printf("%#v \n", p.longToShort)
 	shortPath, ok := p.longToShort[longPath]
 	if !ok {
 		return "", errors.New("Don't find short")
